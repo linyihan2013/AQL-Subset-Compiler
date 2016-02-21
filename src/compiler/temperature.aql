@@ -1,0 +1,27 @@
+create view Num as
+  extract regex /[0-9]*/
+    on D.text as Num
+  from Document D;
+
+create view Tem as
+  extract regex /[A-Za-z]*/
+    on D.text
+    return group 0 as Tem
+  from Document D;
+
+create view Float as
+  extract pattern (<Nu.Num>) /./ (<Nu.Num>)
+  return group 0 as Float
+  from Num Nu;
+
+create view Data as
+  extract pattern (<t.Tem>{1,3}) (<f.Float>)
+    return group 0 as Data
+	and group 1 as Float
+    and group 2 as Tem
+  from Float f, Tem t;
+
+output view Num;
+output view Tem;
+output view Float;
+output view Data;

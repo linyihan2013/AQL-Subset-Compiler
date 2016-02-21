@@ -1,0 +1,41 @@
+create view Num as
+  extract regex /[A-Z]*/
+    on D.text as Num
+  from Document D;
+
+create view Name as
+  extract regex /Final|Fantasy|MMORPG|Square|Enix|PlayStation|Xbox|E3/
+    on D.text
+    return group 0 as Name
+  from Document D;
+
+create view Loc as
+  extract pattern (<Na.Name>{1,2}) (<Nu.Num>)
+  return group 0 as FullName
+    and group 1 as Name
+    and group 2 as Num
+  from Name Na, Num Nu;
+
+create view Plat as
+  extract regex /[A-Z][a-z]*/
+    on D.text
+    return group 0 as Plat
+  from Document D;
+
+create view PerLoc as
+  extract pattern (<P.Plat>) (/[0-9]*/)
+  return group 0 as PerLoc
+    and group 1 as Plat
+    and group 2 as Loc
+  from Plat P, Loc L;
+
+create view PerLocOnly as
+  select PL.PerLoc as PerLoc
+  from PerLoc PL;
+
+output view Num;
+output view Name;
+output view Loc;
+output view Plat;
+output view PerLoc;
+output view PerLocOnly;
